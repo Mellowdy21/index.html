@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tarro — Mistake Classification Tree</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f4; --bg3: #eeece8;
+    --text: #1a1a18; --text2: #5a5a56; --text3: #9a9a94;
+    --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
+    --radius-md: 8px; --radius-lg: 12px;
+    --blue-bg: #e6f1fb; --blue-text: #185fa5; --blue-bd: #378add;
+    --green-bg: #eaf3de; --green-text: #3b6d11; --green-bd: #639922;
+    --amber-bg: #faeeda; --amber-text: #854f0b; --amber-bd: #ba7517;
+    --red-bg: #fcebeb; --red-text: #a32d2d; --red-bd: #e24b4a;
+    --info-bg: #e6f1fb; --info-text: #185fa5;
+    --warn-bg: #faeeda; --warn-text: #854f0b;
+    --danger-bg: #fcebeb; --danger-text: #a32d2d;
+    --success-bg: #eaf3de; --success-text: #3b6d11;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #333330;
+      --text: #e8e6de; --text2: #a0a09a; --text3: #686862;
+      --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
+      --blue-bg: #0c2e4a; --blue-text: #85b7eb; --blue-bd: #185fa5;
+      --green-bg: #172504; --green-text: #97c459; --green-bd: #3b6d11;
+      --amber-bg: #2a1a04; --amber-text: #ef9f27; --amber-bd: #854f0b;
+      --red-bg: #2a0d0d; --red-text: #f09595; --red-bd: #a32d2d;
+      --info-bg: #0c2e4a; --info-text: #85b7eb;
+      --warn-bg: #2a1a04; --warn-text: #ef9f27;
+      --danger-bg: #2a0d0d; --danger-text: #f09595;
+      --success-bg: #172504; --success-text: #97c459;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 24px 16px; }
+  header { max-width: 700px; margin: 0 auto 24px; display: flex; align-items: center; gap: 12px; }
+  .logo { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--red-bg); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 0.5px solid var(--red-bd); }
+  header h1 { font-size: 16px; font-weight: 600; }
+  header p { font-size: 12px; color: var(--text3); margin-top: 1px; }
+  #app { max-width: 700px; margin: 0 auto; background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 24px; }
+
+  .progress { display: flex; align-items: center; margin-bottom: 24px; }
+  .prog-step { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
+  .prog-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; border: 0.5px solid var(--border2); color: var(--text3); background: var(--bg2); transition: all 0.2s; }
+  .prog-dot.active { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue-bd); }
+  .prog-dot.done { background: var(--green-bg); color: var(--green-text); border-color: var(--green-bd); }
+  .prog-label { font-size: 9px; color: var(--text3); text-align: center; max-width: 52px; line-height: 1.2; }
+  .prog-line { flex: 1; height: 0.5px; background: var(--border); margin-bottom: 16px; min-width: 4px; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+  .back-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 4px; padding: 0 0 14px; transition: color 0.15s; font-family: inherit; }
+  .back-btn:hover { color: var(--text); }
+
+  .q-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+  .q-text { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.5; }
+  .q-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; line-height: 1.6; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .opt-btn { padding: 10px 18px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; line-height: 1.4; }
+  .opt-btn:hover { background: var(--bg3); }
+
+  .choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+  .choice-btn { padding: 14px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; text-align: center; font-family: inherit; }
+  .choice-btn:hover { background: var(--bg3); }
+
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+  .cat-btn { padding: 11px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
+  .cat-btn:hover { background: var(--bg3); }
+
+  .behavior-list { display: flex; flex-direction: column; gap: 6px; }
+  .beh-btn { padding: 11px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; justify-content: space-between; gap: 12px; line-height: 1.45; font-family: inherit; }
+  .beh-btn:hover { background: var(--bg2); border-color: var(--border2); }
+  .beh-tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-md); white-space: nowrap; flex-shrink: 0; letter-spacing: 0.03em; }
+  .tag-mistake  { background: var(--warn-bg);   color: var(--warn-text);   }
+  .tag-coaching { background: var(--info-bg);   color: var(--info-text);   }
+  .tag-redflag  { background: var(--danger-bg); color: var(--danger-text); }
+
+  .badge-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+  .outcome-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; }
+  .badge-restaurant { background: var(--danger-bg);  color: var(--danger-text);  }
+  .badge-coaching   { background: var(--info-bg);    color: var(--info-text);    }
+  .badge-external   { background: var(--success-bg); color: var(--success-text); }
+  .badge-internal   { background: var(--warn-bg);    color: var(--warn-text);    }
+  .badge-redflag    { background: var(--danger-bg);  color: var(--danger-text);  }
+  .mtype-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; }
+  .mtype-mistake  { background: var(--warn-bg);   color: var(--warn-text);   }
+  .mtype-coaching { background: var(--info-bg);   color: var(--info-text);   }
+  .mtype-redflag  { background: var(--danger-bg); color: var(--danger-text); }
+  .mtype-na       { background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border2); }
+  .inline-mtype { display: inline-flex; padding: 1px 8px; border-radius: var(--radius-md); font-size: 11px; font-weight: 600; margin-left: 4px; }
+
+  .outcome-title { font-size: 15px; font-weight: 600; margin: 8px 0 6px; line-height: 1.5; }
+  .divider { height: 0.5px; background: var(--border); margin: 14px 0; }
+  .field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 6px; display: block; }
+
+  .log-entry-box { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; }
+  .log-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; }
+  .log-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); min-width: 110px; flex-shrink: 0; padding-top: 2px; }
+  .log-val { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.5; }
+
+  .details-block { margin-bottom: 10px; }
+  .details-textarea { width: 100%; min-height: 90px; padding: 12px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-family: inherit; font-size: 13px; line-height: 1.6; resize: vertical; transition: border-color 0.15s; outline: none; }
+  .details-textarea::placeholder { color: var(--text3); }
+  .details-textarea:focus { border-color: var(--blue-bd); }
+
+  .preview-box { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; display: none; }
+  .preview-text { font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+
+  .copy-btn { width: 100%; padding: 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 7px; font-family: inherit; margin-bottom: 8px; }
+  .copy-btn:hover { background: var(--bg2); }
+  .copy-btn.copied { background: var(--green-bg); color: var(--green-text); border-color: var(--green-bd); }
+
+  .path-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+  .chip { font-size: 11px; padding: 3px 8px; border-radius: var(--radius-md); background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); }
+  .chip-sep { font-size: 11px; color: var(--text3); }
+
+  .reset-btn { font-size: 12px; color: var(--text2); cursor: pointer; background: none; border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 7px 14px; transition: background 0.15s; width: 100%; text-align: center; font-family: inherit; }
+  .reset-btn:hover { background: var(--bg2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🍜</div>
+  <div>
+    <h1>Mistake Classification Tree</h1>
+    <p>Tarro Quality Assurance — Internal Use Only</p>
+  </div>
+</header>
+
+<div id="app">
+  <div class="progress" id="progress-bar"></div>
+
+  <!-- Step 1: Resource -->
+  <div class="view active" id="v1">
+    <div class="q-card">
+      <div class="q-text">Select the resource</div>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="selectResource('Escalation')">Escalation</button>
+        <button class="choice-btn" onclick="selectResource('Internal Audit')">Internal Audit / Monitoring</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2a: How identified — Escalation -->
+  <div class="view" id="v2-escalation">
+    <button class="back-btn" onclick="nav('v1',1)">← Back</button>
+    <div class="q-card">
+      <div class="q-text">How was this identified?</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="selectReporter('Client reported'); nav('v3-esc-source',3)">Client reported</button>
+        <button class="opt-btn" onclick="selectReporter('Customer reported'); nav('v3-esc-source',3)">Customer reported</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2b: How identified — Internal -->
+  <div class="view" id="v2-internal">
+    <button class="back-btn" onclick="nav('v1',1)">← Back</button>
+    <div class="q-card">
+      <div class="q-text">How was this identified?</div>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="selectAuditType('FTC Audit'); nav('v3-int-source',3)">FTC Audit</button>
+        <button class="choice-btn" onclick="selectAuditType('Special Audit'); nav('v3-int-source',3)">Special Audit</button>
+        <button class="choice-btn" onclick="selectAuditType('Mistake Review'); nav('v3-int-source',3)">Mistake Review</button>
+        <button class="choice-btn" onclick="selectAuditType('Certification'); nav('v3-int-source',3)">Certification</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3a: Source — Escalation -->
+  <div class="view" id="v3-esc-source">
+    <button class="back-btn" onclick="nav('v2-escalation',2)">← Back</button>
+    <div class="q-card">
+      <div class="q-text">Select the source</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="selectSource('WIRA/CMA'); nav('v4-7days',4)">WIRA / CMA</button>
+        <button class="opt-btn" onclick="selectSource('Slack QC Audit Request'); nav('v4-7days',4)">Slack QC Audit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3b: Source — Internal -->
+  <div class="view" id="v3-int-source">
+    <button class="back-btn" onclick="nav('v2-internal',2)">← Back</button>
+    <div class="q-card">
+      <div class="q-text">Select the source</div>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="selectSource('Slack - Braintrust'); nav('v4-7days',4)">Slack — Braintrust</button>
+        <button class="choice-btn" onclick="selectSource('Slack - Quality Control'); nav('v4-7days',4)">Slack — Quality Control</button>
+        <button class="choice-btn" onclick="selectSource('Slack - Upskilling'); nav('v4-7days',4)">Slack — Upskilling</button>
+        <button class="choice-btn" onclick="selectSource('Slack - New Hire'); nav('v4-7days',4)">Slack — New Hire</button>
+        <button class="choice-btn" onclick="selectSource('Slack - Ops Initiatives'); nav('v4-7days',4)">Slack — Ops Initiatives</button>
+        <button class="choice-btn" onclick="selectSource('FTC File'); nav('v4-7days',4)">FTC File</button>
+        <button class="choice-btn" onclick="selectSource('Regular Audit'); nav('v4-7days',4)">Regular Audit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Within 7 days? -->
+  <div class="view" id="v4-7days">
+    <button class="back-btn" id="back-7days">← Back</button>
+    <div class="q-card">
+      <div class="q-text">Is the call still within 7 days from the time it was handled?</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="handle7days(true)">Yes — within 7 days</button>
+        <button class="opt-btn" onclick="handle7days(false)">No — beyond 7 days</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Error Category -->
+  <div class="view" id="v5-category">
+    <button class="back-btn" onclick="nav('v4-7days',4)">← Back</button>
+    <div class="q-card">
+      <div class="q-text">Select the error category</div>
+      <div class="cat-grid" id="cat-btns"></div>
+    </div>
+  </div>
+
+  <!-- Step 6: Specific Behavior -->
+  <div class="view" id="v6-behaviors">
+    <button class="back-btn" onclick="nav('v5-category',5)">← Back</button>
+    <div class="q-card">
+      <div class="q-text" id="beh-title">Select the specific behavior</div>
+      <div class="behavior-list" id="beh-list"></div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="view" id="v-result">
+    <button class="back-btn" id="result-back">← Back</button>
+    <div class="path-chips" id="path-chips"></div>
+    <div id="result-content"></div>
+  </div>
+</div>
+
+<script>
+const state = {
+  resource: '', reporter: '', auditType: '',
+  source: '', within7: null,
+  category: '', behavior: '', mistakeType: '', classification: ''
+};
+
+const M = 'MISTAKE', C = 'COACHING', R = 'REDFLAG';
+
+const TAG_CLASS   = { MISTAKE:'tag-mistake', COACHING:'tag-coaching', REDFLAG:'tag-redflag' };
+const MTYPE_CLASS = { MISTAKE:'mtype-mistake', COACHING:'mtype-coaching', REDFLAG:'mtype-redflag', '—':'mtype-na' };
+
+const COPY_ICON  = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>`;
+const CHECK_ICON = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
+
+const GRID = {
+  'Dish': [
+    { b: 'Incorrect Dish', t: M },
+    { b: 'Specific dish button exists but agent unnecessarily modified a dish', t: M },
+    { b: 'Failed to follow default dish for the restaurant', t: M },
+    { b: 'Customer mentioned menu number, agent confirmed a different dish', t: M },
+    { b: 'Failed to utilize searchable menu leading to wrong dish selection', t: M },
+    { b: 'Same Meaning Dishes — wrong/no probing question', t: M },
+    { b: 'Lack of probing leading to wrong dish', t: M },
+  ],
+  'Address': [
+    { b: 'Wrong address — numerical discrepancy or incorrect street/city name', t: M },
+    { b: 'Incorrect apartment number', t: M },
+    { b: 'Failed to confirm address by spelling it out', t: M },
+    { b: 'Did not confirm delivery address for callback customer', t: M },
+    { b: 'Misclicked incorrect address from saved file', t: M },
+    { b: 'Misclicked wrong address from autocomplete list', t: M },
+    { b: 'Missing House/Building/Apt number information', t: M },
+    { b: 'Did not get Name/Contact Number for business address', t: M },
+    { b: 'Failed to follow delivery drawer instruction (cash/card remark)', t: M },
+    { b: 'Missed to adjust delivery fee per delivery drawer instruction', t: M },
+    { b: 'Outside delivery area', t: M },
+  ],
+  'Delivery Fee': [
+    { b: 'Overlooked customer notes about the delivery fee', t: M },
+    { b: 'Created a new ticket that resulted in 2x delivery fees', t: M },
+  ],
+  'Order Type': [
+    { b: 'Did not ask order type — pickup or delivery', t: M },
+    { b: 'Clicked pickup without asking customer', t: M },
+    { b: 'Incorrect order type — customer said delivery, agent clicked pickup', t: M },
+    { b: 'Failed to probe for confusing order type (customer mentioned both PU and delivery)', t: M },
+    { b: 'Copied old ticket without double-checking if order type changed', t: M },
+  ],
+  'Credit Card': [
+    { b: 'Incorrect CC input — wrong expiration date', t: M },
+    { b: 'Incorrect CC input — wrong ZIP code', t: M },
+    { b: 'Incorrect CC input — wrong CVV', t: M },
+    { b: 'Incorrect CC input — wrong tip amount', t: M },
+    { b: 'Did not follow credit card instruction (e.g. Pay Card dish item)', t: M },
+    { b: 'Did not ask for tip (tip box was RED)', t: M },
+    { b: 'Did not meet minimum order requirement for CC payment', t: M },
+    { b: 'Incorrect payment method — customer paid by card, agent sent as cash', t: M },
+  ],
+  'Size': [
+    { b: 'Assumed size — did not follow restaurant default size instruction', t: M },
+    { b: 'Failed to follow default size when customer refers to the menu', t: M },
+    { b: 'Incorrect size — did not prioritize customer request', t: M },
+    { b: 'Failed to educate customer about available size variants', t: M },
+    { b: 'Assumed size but customer agreed (instruction was to ask)', t: C },
+  ],
+  'Coupons': [
+    { b: 'Agent removed automatically applied coupon', t: M },
+    { b: 'Failed to follow coupon restrictions/instructions', t: M },
+    { b: 'Missed coupon instruction — must be presented upon claim', t: M },
+    { b: 'Failed to follow pop-up instruction pertaining to coupon', t: M },
+    { b: 'Did not click the right free item for coupon', t: M },
+    { b: 'Failed to give the default free item', t: M },
+    { b: 'Applied wrong coupon (grayed out)', t: M },
+    { b: 'Applied wrong coupon type (% vs $ off)', t: M },
+    { b: 'Exceeded allowable coupons for the order', t: M },
+    { b: 'Duplicate coupon — auto-applied coupon + manual 5% off', t: M },
+    { b: 'Agent proactively gave coupon even though customer did not mention it', t: M },
+    { b: 'Did not inform customer of auto-applied free item given', t: C },
+  ],
+  'Missing Item': [
+    { b: 'Failed to increase quantity — agent placed fewer items than ordered', t: M },
+    { b: 'Lack of probing when order quantity was unclear', t: M },
+    { b: 'Failed to capture orders due to verbal collision/interruption', t: M },
+  ],
+  'Modification': [
+    { b: 'Missing modification — failed to apply customer request', t: M },
+    { b: 'Used order remarks when modifier was available in the system', t: M },
+    { b: 'Incorrect rice substitution', t: M },
+    { b: 'Incorrect modifier button used', t: M },
+    { b: 'Wrong sauce/cook method modifier (e.g. Sauce Separate vs Steam)', t: M },
+    { b: 'Wrong cook level modifier (e.g. Well Done vs Less Well Done)', t: M },
+    { b: 'Added unnecessary extra modifier not requested by customer', t: M },
+    { b: 'Incorrect line modification — applied to wrong dish', t: M },
+    { b: 'Missing charge on modification', t: M },
+    { b: 'Wrong action button (WITH vs ADD)', t: M },
+    { b: 'Incorrect modification quantity/charge', t: M },
+    { b: 'Unnecessary modification added', t: M },
+    { b: 'Incorrect modification charge — failed to apply correct price', t: M },
+  ],
+  'Not Sent': [
+    { b: 'Clicked Save instead of Send', t: M },
+    { b: 'Customer finished ordering but agent forgot to send the ticket', t: M },
+    { b: 'Clicked Home instead of Send/Submit', t: M },
+    { b: 'Asked for floor support then forgot to send', t: M },
+  ],
+  'Customer Info': [
+    { b: 'Customer mentioned allergy — agent did not add to customer profile', t: M },
+    { b: 'Incorrect phone number entered', t: M },
+    { b: 'Customer spelled out name but agent misspelled it', t: C },
+  ],
+  'Customer Service': [
+    { b: 'Possible Call Avoidance — intentionally delaying incoming call', t: R },
+    { b: 'Remaining on call after it ended, non-productive activities', t: R },
+    { b: 'Intentionally transferring to SP/CH queue to avoid customer', t: R },
+    { b: 'Call Riding — staying on call during loop beyond 16 seconds', t: R },
+    { b: 'Prematurely disconnecting the call', t: R },
+    { b: 'Rudeness — disrespectful or dismissive manner', t: R },
+    { b: 'Offensive Remarks / Profanity', t: R },
+    { b: 'Condescending remarks or tone', t: R },
+    { b: 'Sounded Argumentative', t: R },
+    { b: 'Confrontational behavior', t: R },
+    { b: 'Sounded Sarcastic', t: R },
+    { b: 'Sounded Irritated', t: R },
+    { b: 'Being verbally abusive', t: R },
+    { b: 'Sounded sleepy / unaccommodating', t: R },
+    { b: 'Eating while on live call with customer', t: R },
+    { b: 'Talking over the customer', t: R },
+    { b: 'Rushing the customer', t: R },
+    { b: 'Failed to repeat orders per Alert instruction ($60+ orders)', t: M },
+    { b: 'Overconfirmation — repeated entire order without customer request', t: C },
+    { b: 'Overconfirmation / Parroting — repeated item clearly stated by customer', t: C },
+  ],
+  'Miscellaneous': [
+    { b: 'Failed to follow key info instructions', t: M },
+    { b: 'Missed pop-up instruction (e.g. sauce pack, 5% cash discount)', t: M },
+    { b: 'Missing drop-off instruction (Leave at door / Phone call)', t: M },
+    { b: 'Failed to follow proper callback procedure (4 rings, 2 attempts)', t: M },
+    { b: 'Excessive items — gave more than ordered', t: M },
+    { b: 'Failed to inform customer of new total after modification', t: M },
+    { b: 'Inaccurate order remarks — differs from customer request', t: M },
+    { b: 'Overcharged customer', t: M },
+    { b: 'Provided incorrect information (dish inquiry, ETA, total, ingredients)', t: M },
+    { b: 'Sent ticket twice without modifications', t: M },
+    { b: 'Failed to give unmasked total and ETA', t: M },
+    { b: 'Proactively gave masked total or ETA', t: M },
+    { b: 'Erased the order', t: M },
+    { b: 'Modified ticket after 5 minutes', t: M },
+    { b: 'Did not cancel order per customer request', t: M },
+    { b: 'Did not call or use CT template', t: M },
+    { b: 'Lack of probing — gave wrong item without clarifying', t: M },
+    { b: 'Failed to salvage the order (delivery unavailable, long ETA, dish unavailable)', t: M },
+    { b: 'Did not call SME/CA when help was needed', t: M },
+    { b: 'Failed to follow instruction for side order', t: M },
+    { b: 'Incomplete/Wrong restaurant name', t: M },
+    { b: 'Failed to confirm resto location per Alert instruction', t: M },
+    { b: 'Possible Call Avoidance — intentionally delaying/avoiding calls', t: R },
+    { b: 'Call Riding — staying on call during loop beyond 16 seconds', t: R },
+    { b: 'Online Orders — did not follow correct handling procedure', t: C },
+    { b: 'Restaurant Orders — did not follow correct handling procedure', t: C },
+    { b: 'Walk-in Orders — did not follow correct handling procedure', t: C },
+    { b: 'Wrong Internal Transfer (e.g. transferred to CA instead of Manager)', t: C },
+    { b: 'Invalid SME/CA call — used CA instead of available tool', t: C },
+    { b: 'Failed to save ticket when required (CBNA/CBVM, Inquiry)', t: C },
+  ],
+};
+
+/* ── helpers ─────────────────────────────────── */
+function buildProgress(current) {
+  const labels = ['Resource','Identified','Source','7 Days?','Category','Behavior','Outcome'];
+  const bar = document.getElementById('progress-bar');
+  bar.innerHTML = '';
+  labels.forEach((lbl, i) => {
+    const n = i + 1;
+    const step = document.createElement('div');
+    step.className = 'prog-step';
+    const dot = document.createElement('div');
+    dot.className = 'prog-dot' + (n < current ? ' done' : n === current ? ' active' : '');
+    dot.textContent = n < current ? '✓' : n;
+    const label = document.createElement('div');
+    label.className = 'prog-label';
+    label.textContent = lbl;
+    step.appendChild(dot);
+    step.appendChild(label);
+    bar.appendChild(step);
+    if (i < labels.length - 1) {
+      const line = document.createElement('div');
+      line.className = 'prog-line';
+      bar.appendChild(line);
+    }
+  });
+}
+
+function nav(id, step) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  buildProgress(step);
+  if (id === 'v5-category' && !document.getElementById('cat-btns').children.length) renderCategories();
+}
+
+function selectResource(r) {
+  state.resource = r;
+  state.reporter = ''; state.auditType = ''; state.source = '';
+  nav(r === 'Escalation' ? 'v2-escalation' : 'v2-internal', 2);
+}
+function selectReporter(r)  { state.reporter = r; }
+function selectAuditType(t) { state.auditType = t; }
+function selectSource(s)    { state.source = s; }
+
+/* 7-day logic:
+   Beyond 7 days → always Coaching (no category/behavior needed)
+   Within 7 days → always go to Category → Behavior
+   Classification is then determined by resource + reporter + behavior tag:
+     Escalation + Client    → Restaurant Mistake (unless behavior tag is COACHING/REDFLAG)
+     Escalation + Customer  → External Mistake   (unless behavior tag is COACHING/REDFLAG)
+     Internal Audit         → Internal Mistake   (unless behavior tag is COACHING/REDFLAG)
+     Any behavior tag = COACHING → Coaching
+     Any behavior tag = REDFLAG  → RED FLAG
+*/
+function handle7days(within) {
+  state.within7 = within;
+  if (!within) {
+    showCoachingDirect();
+  } else {
+    nav('v5-category', 5);
+  }
+}
+
+document.getElementById('back-7days').onclick = () => {
+  nav(state.resource === 'Escalation' ? 'v3-esc-source' : 'v3-int-source', 3);
+};
+
+function deriveClassification(behaviorTag) {
+  if (behaviorTag === C) return 'Coaching';
+  if (behaviorTag === R) return 'RED FLAG';
+  if (state.resource === 'Escalation') {
+    return state.reporter === 'Client reported' ? 'Restaurant Mistake' : 'External Mistake';
+  }
+  return 'Internal Mistake';
+}
+
+function classificationBadge(cls) {
+  const map = {
+    'Restaurant Mistake': 'badge-restaurant',
+    'External Mistake':   'badge-external',
+    'Internal Mistake':   'badge-internal',
+    'Coaching':           'badge-coaching',
+    'RED FLAG':           'badge-redflag',
+  };
+  return `<span class="outcome-badge ${map[cls] || 'badge-internal'}">${cls}</span>`;
+}
+
+function renderCategories() {
+  const c = document.getElementById('cat-btns');
+  c.innerHTML = '';
+  Object.keys(GRID).forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.textContent = cat;
+    btn.onclick = () => showBehaviors(cat);
+    c.appendChild(btn);
+  });
+}
+
+function showBehaviors(cat) {
+  state.category = cat;
+  document.getElementById('beh-title').textContent = cat + ' — select the specific behavior';
+  const list = document.getElementById('beh-list');
+  list.innerHTML = '';
+  GRID[cat].forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'beh-btn';
+    btn.innerHTML = `<span>${item.b}</span><span class="beh-tag ${TAG_CLASS[item.t]}">${item.t}</span>`;
+    btn.onclick = () => showBehaviorResult(cat, item);
+    list.appendChild(btn);
+  });
+  nav('v6-behaviors', 6);
+}
+
+function showBehaviorResult(cat, item) {
+  state.behavior = item.b;
+  state.mistakeType = item.t;
+  state.classification = deriveClassification(item.t);
+  const chips = [state.resource];
+  if (state.reporter)  chips.push(state.reporter);
+  if (state.auditType) chips.push(state.auditType);
+  if (state.source)    chips.push(state.source);
+  chips.push(state.within7 ? 'Within 7 days' : 'Beyond 7 days', cat, item.b);
+  setChips(chips);
+  document.getElementById('result-back').onclick = () => nav('v6-behaviors', 6);
+  renderResult(state.classification, item.t, cat, item.b);
+  nav('v-result', 7);
+}
+
+function showCoachingDirect() {
+  state.classification = 'Coaching';
+  state.mistakeType = '—';
+  state.category = '—';
+  state.behavior = '—';
+  const chips = [state.resource];
+  if (state.reporter)  chips.push(state.reporter);
+  if (state.auditType) chips.push(state.auditType);
+  if (state.source)    chips.push(state.source);
+  chips.push('Beyond 7 days');
+  setChips(chips);
+  document.getElementById('result-back').onclick = () => nav('v4-7days', 4);
+  renderResult('Coaching', '—', '—', '—');
+  nav('v-result', 7);
+}
+
+function renderResult(classification, mistakeType, category, behavior) {
+  const mtClass  = MTYPE_CLASS[mistakeType] || 'mtype-na';
+  const mtLabel  = mistakeType || '—';
+  const e = s => (s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/'/g,"\\'");
+  const res = state.resource;
+
+  document.getElementById('result-content').innerHTML = `
+    <div class="badge-row">
+      ${classificationBadge(classification)}
+      <span class="mtype-pill ${mtClass}">${mtLabel}</span>
+    </div>
+    <div class="outcome-title">${classification}${category !== '—' ? ' — ' + category : ''}</div>
+    <div class="divider"></div>
+    <div class="log-entry-box">
+      <span class="field-label">QA log entry</span>
+      <div class="log-row"><span class="log-key">Resource</span><span class="log-val">${res}</span></div>
+      <div class="log-row"><span class="log-key">Mistake type</span><span class="log-val"><span class="inline-mtype ${mtClass}">${mtLabel}</span></span></div>
+      <div class="log-row"><span class="log-key">Category</span><span class="log-val">${category}</span></div>
+      <div class="log-row"><span class="log-key">Behavior</span><span class="log-val">${behavior}</span></div>
+    </div>
+    <div class="details-block">
+      <label class="field-label" for="details-input">Details / Recommendation</label>
+      <textarea id="details-input" class="details-textarea"
+        placeholder="Add details, context, or coaching recommendation here…"
+        oninput="updatePreview('${e(res)}','${e(mtLabel)}','${e(category)}','${e(behavior)}')"
+      ></textarea>
+    </div>
+    <div class="preview-box" id="full-preview">
+      <span class="field-label">Full log preview</span>
+      <div class="preview-text" id="preview-text"></div>
+    </div>
+    <button class="copy-btn" id="copy-btn"
+      onclick="copyLog('${e(res)}','${e(mtLabel)}','${e(category)}','${e(behavior)}')">
+      ${COPY_ICON} Copy log entry
+    </button>
+    <button class="reset-btn" onclick="resetAll()">← Start over</button>
+  `;
+}
+
+function buildLogText(resource, mistakeType, category, behavior, details) {
+  let t = `Resource      : ${resource}\nMistake type  : ${mistakeType}\nCategory      : ${category}\nBehavior      : ${behavior}`;
+  if (details) t += `\n\nDetails / Recommendation:\n${details}`;
+  return t;
+}
+
+function updatePreview(resource, mistakeType, category, behavior) {
+  const details = document.getElementById('details-input').value.trim();
+  const preview = document.getElementById('full-preview');
+  const previewText = document.getElementById('preview-text');
+  if (details) {
+    previewText.textContent = buildLogText(resource, mistakeType, category, behavior, details);
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function copyLog(resource, mistakeType, category, behavior) {
+  const details = (document.getElementById('details-input').value || '').trim();
+  navigator.clipboard.writeText(buildLogText(resource, mistakeType, category, behavior, details)).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.classList.add('copied');
+    btn.innerHTML = CHECK_ICON + ' Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = COPY_ICON + ' Copy log entry'; }, 2000);
+  });
+}
+
+function setChips(crumbs) {
+  document.getElementById('path-chips').innerHTML = crumbs.filter(Boolean).map((c, i, a) =>
+    i < a.length - 1
+      ? `<span class="chip">${c}</span><span class="chip-sep">›</span>`
+      : `<span class="chip">${c}</span>`
+  ).join('');
+}
+
+function resetAll() {
+  Object.assign(state, { resource:'', reporter:'', auditType:'', source:'', within7:null, category:'', behavior:'', mistakeType:'', classification:'' });
+  document.getElementById('cat-btns').innerHTML = '';
+  document.getElementById('beh-list').innerHTML = '';
+  nav('v1', 1);
+}
+
+buildProgress(1);
+</script>
+</body>
+</html>
