@@ -19,6 +19,8 @@
     --warn-bg: #faeeda; --warn-text: #854f0b;
     --danger-bg: #fcebeb; --danger-text: #a32d2d;
     --success-bg: #eaf3de; --success-text: #3b6d11;
+    --purple-bg: #f0ebfb; --purple-text: #5b21b6;
+    --pink-bg: #fce8f3; --pink-text: #9d174d;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -33,6 +35,8 @@
       --warn-bg: #2a1a04; --warn-text: #ef9f27;
       --danger-bg: #2a0d0d; --danger-text: #f09595;
       --success-bg: #172504; --success-text: #97c459;
+      --purple-bg: #1e1240; --purple-text: #a78bfa;
+      --pink-bg: #2d0a1e; --pink-text: #f9a8d4;
     }
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 24px 16px; }
@@ -69,27 +73,35 @@
   .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
   .cat-btn { padding: 11px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
   .cat-btn:hover { background: var(--bg3); }
+  .cat-btn.cat-redflag    { border-color: var(--danger-bg);  background: var(--danger-bg);  color: var(--danger-text);  }
+  .cat-btn.cat-redflag:hover { opacity: 0.85; }
+  .cat-btn.cat-ftconvert  { border-color: var(--purple-bg);  background: var(--purple-bg);  color: var(--purple-text);  }
+  .cat-btn.cat-ftconvert:hover { opacity: 0.85; }
 
   .behavior-list { display: flex; flex-direction: column; gap: 6px; }
   .beh-btn { padding: 11px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; justify-content: space-between; gap: 12px; line-height: 1.45; font-family: inherit; }
   .beh-btn:hover { background: var(--bg2); border-color: var(--border2); }
   .beh-tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-md); white-space: nowrap; flex-shrink: 0; letter-spacing: 0.03em; }
-  .tag-mistake  { background: var(--warn-bg);   color: var(--warn-text);   }
-  .tag-coaching { background: var(--info-bg);   color: var(--info-text);   }
-  .tag-redflag  { background: var(--danger-bg); color: var(--danger-text); }
+  .tag-mistake    { background: var(--warn-bg);    color: var(--warn-text);   }
+  .tag-coaching   { background: var(--info-bg);    color: var(--info-text);   }
+  .tag-redflag    { background: var(--danger-bg);  color: var(--danger-text); }
+  .tag-ftconvert  { background: var(--purple-bg);  color: var(--purple-text); }
 
   .badge-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
   .outcome-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; }
-  .badge-restaurant { background: var(--danger-bg);  color: var(--danger-text);  }
-  .badge-coaching   { background: var(--info-bg);    color: var(--info-text);    }
-  .badge-external   { background: var(--success-bg); color: var(--success-text); }
-  .badge-internal   { background: var(--warn-bg);    color: var(--warn-text);    }
-  .badge-redflag    { background: var(--danger-bg);  color: var(--danger-text);  }
+  .badge-restaurant  { background: var(--danger-bg);  color: var(--danger-text);  }
+  .badge-coaching    { background: var(--info-bg);    color: var(--info-text);    }
+  .badge-external    { background: var(--success-bg); color: var(--success-text); }
+  .badge-internal    { background: var(--warn-bg);    color: var(--warn-text);    }
+  .badge-redflag     { background: var(--danger-bg);  color: var(--danger-text);  }
+  .badge-ftconvert   { background: var(--purple-bg);  color: var(--purple-text);  }
+
   .mtype-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; }
-  .mtype-mistake  { background: var(--warn-bg);   color: var(--warn-text);   }
-  .mtype-coaching { background: var(--info-bg);   color: var(--info-text);   }
-  .mtype-redflag  { background: var(--danger-bg); color: var(--danger-text); }
-  .mtype-na       { background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border2); }
+  .mtype-mistake   { background: var(--warn-bg);    color: var(--warn-text);   }
+  .mtype-coaching  { background: var(--info-bg);    color: var(--info-text);   }
+  .mtype-redflag   { background: var(--danger-bg);  color: var(--danger-text); }
+  .mtype-ftconvert { background: var(--purple-bg);  color: var(--purple-text); }
+  .mtype-na        { background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border2); }
   .inline-mtype { display: inline-flex; padding: 1px 8px; border-radius: var(--radius-md); font-size: 11px; font-weight: 600; margin-left: 4px; }
 
   .outcome-title { font-size: 15px; font-weight: 600; margin: 8px 0 6px; line-height: 1.5; }
@@ -189,13 +201,13 @@
     <div class="q-card">
       <div class="q-text">Select the source</div>
       <div class="choice-grid">
-        <button class="choice-btn" onclick="selectSource('Slack - Braintrust'); nav('v4-7days',4)">Slack — Braintrust</button>
-        <button class="choice-btn" onclick="selectSource('Slack - Quality Control'); nav('v4-7days',4)">Slack — Quality Control</button>
-        <button class="choice-btn" onclick="selectSource('Slack - Upskilling'); nav('v4-7days',4)">Slack — Upskilling</button>
-        <button class="choice-btn" onclick="selectSource('Slack - New Hire'); nav('v4-7days',4)">Slack — New Hire</button>
-        <button class="choice-btn" onclick="selectSource('Slack - Ops Initiatives'); nav('v4-7days',4)">Slack — Ops Initiatives</button>
-        <button class="choice-btn" onclick="selectSource('FTC File'); nav('v4-7days',4)">FTC File</button>
-        <button class="choice-btn" onclick="selectSource('Regular Audit'); nav('v4-7days',4)">Regular Audit</button>
+        <button class="choice-btn" onclick="selectSource('Slack - Braintrust'); navAfterIntSource()">Slack — Braintrust</button>
+        <button class="choice-btn" onclick="selectSource('Slack - Quality Control'); navAfterIntSource()">Slack — Quality Control</button>
+        <button class="choice-btn" onclick="selectSource('Slack - Upskilling'); navAfterIntSource()">Slack — Upskilling</button>
+        <button class="choice-btn" onclick="selectSource('Slack - New Hire'); navAfterIntSource()">Slack — New Hire</button>
+        <button class="choice-btn" onclick="selectSource('Slack - Ops Initiatives'); navAfterIntSource()">Slack — Ops Initiatives</button>
+        <button class="choice-btn" onclick="selectSource('FTC File'); navAfterIntSource()">FTC File</button>
+        <button class="choice-btn" onclick="selectSource('Regular Audit'); navAfterIntSource()">Regular Audit</button>
       </div>
     </div>
   </div>
@@ -214,7 +226,7 @@
 
   <!-- Step 5: Error Category -->
   <div class="view" id="v5-category">
-    <button class="back-btn" onclick="nav('v4-7days',4)">← Back</button>
+    <button class="back-btn" id="back-category">← Back</button>
     <div class="q-card">
       <div class="q-text">Select the error category</div>
       <div class="cat-grid" id="cat-btns"></div>
@@ -245,10 +257,14 @@ const state = {
   category: '', behavior: '', mistakeType: '', classification: ''
 };
 
-const M = 'MISTAKE', C = 'COACHING', R = 'REDFLAG';
+const M = 'MISTAKE', C = 'COACHING', R = 'REDFLAG', F = 'FAIL TO CONVERT';
 
-const TAG_CLASS   = { MISTAKE:'tag-mistake', COACHING:'tag-coaching', REDFLAG:'tag-redflag' };
-const MTYPE_CLASS = { MISTAKE:'mtype-mistake', COACHING:'mtype-coaching', REDFLAG:'mtype-redflag', '—':'mtype-na' };
+const TAG_CLASS = {
+  [M]: 'tag-mistake', [C]: 'tag-coaching', [R]: 'tag-redflag', [F]: 'tag-ftconvert'
+};
+const MTYPE_CLASS = {
+  [M]: 'mtype-mistake', [C]: 'mtype-coaching', [R]: 'mtype-redflag', [F]: 'mtype-ftconvert', '—': 'mtype-na'
+};
 
 const COPY_ICON  = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>`;
 const CHECK_ICON = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
@@ -403,9 +419,35 @@ const GRID = {
     { b: 'Invalid SME/CA call — used CA instead of available tool', t: C },
     { b: 'Failed to save ticket when required (CBNA/CBVM, Inquiry)', t: C },
   ],
+  'Red Flag': [
+    { b: 'Rudeness — disrespectful, abrupt, or dismissive manner toward customer', t: R },
+    { b: 'Condescending remarks/tone — implies superiority or belittles customer', t: R },
+    { b: 'Offensive Remarks / Profanity — vulgar, offensive, or discriminatory language', t: R },
+    { b: 'Argumentative — confrontational back-and-forth disagreement with customer', t: R },
+    { b: 'Confrontational — combative or aggressive stance escalating tension', t: R },
+    { b: 'Sounded Sarcastic — mocking or insincere tone', t: R },
+    { b: 'Sounded Irritated — tone conveys frustration or impatience', t: R },
+    { b: 'Being verbally abusive — harsh, demeaning, or emotionally harmful language', t: R },
+    { b: 'Sounded sleepy — appeared tired causing inactive listening or ineffective communication', t: R },
+    { b: 'Eating while on live call — chewing audible during interaction with customer', t: R },
+    { b: 'Possible Call Avoidance — premature disconnection of call', t: R },
+    { b: 'Possible Call Avoidance — long wrap-up while idle (beyond 16 seconds)', t: R },
+    { b: 'Possible Call Avoidance — long wrap-up engaging in non-productive activities', t: R },
+    { b: 'Possible Call Avoidance — invalid transfer to SP/CH queue', t: R },
+    { b: 'Call Riding — staying on call during loop/client takeover beyond 16 seconds', t: R },
+    { b: 'Talking over the customer — interrupting while customer is speaking', t: R },
+    { b: 'Rushing the customer — repeated "Anything else?" or ending call prematurely', t: R },
+  ],
+  'Fail to Convert': [
+    { b: 'Did not follow the callback process', t: F },
+    { b: 'Did not offer to place an order', t: F },
+    { b: 'Did not salvage the order', t: F },
+    { b: 'Poor Call Handling', t: F },
+    { b: 'Possible Call Avoidance', t: F },
+    { b: 'Did not send', t: F },
+  ],
 };
 
-/* ── helpers ─────────────────────────────────── */
 function buildProgress(current) {
   const labels = ['Resource','Identified','Source','7 Days?','Category','Behavior','Outcome'];
   const bar = document.getElementById('progress-bar');
@@ -420,13 +462,10 @@ function buildProgress(current) {
     const label = document.createElement('div');
     label.className = 'prog-label';
     label.textContent = lbl;
-    step.appendChild(dot);
-    step.appendChild(label);
+    step.appendChild(dot); step.appendChild(label);
     bar.appendChild(step);
     if (i < labels.length - 1) {
-      const line = document.createElement('div');
-      line.className = 'prog-line';
-      bar.appendChild(line);
+      const line = document.createElement('div'); line.className = 'prog-line'; bar.appendChild(line);
     }
   });
 }
@@ -435,34 +474,25 @@ function nav(id, step) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   buildProgress(step);
-  if (id === 'v5-category' && !document.getElementById('cat-btns').children.length) renderCategories();
+  if (id === 'v5-category') renderCategories();
 }
 
 function selectResource(r) {
-  state.resource = r;
-  state.reporter = ''; state.auditType = ''; state.source = '';
+  state.resource = r; state.reporter = ''; state.auditType = ''; state.source = '';
   nav(r === 'Escalation' ? 'v2-escalation' : 'v2-internal', 2);
 }
 function selectReporter(r)  { state.reporter = r; }
 function selectAuditType(t) { state.auditType = t; }
 function selectSource(s)    { state.source = s; }
 
-/* 7-day logic:
-   Beyond 7 days → always Coaching (no category/behavior needed)
-   Within 7 days → always go to Category → Behavior
-   Classification is then determined by resource + reporter + behavior tag:
-     Escalation + Client    → Restaurant Mistake (unless behavior tag is COACHING/REDFLAG)
-     Escalation + Customer  → External Mistake   (unless behavior tag is COACHING/REDFLAG)
-     Internal Audit         → Internal Mistake   (unless behavior tag is COACHING/REDFLAG)
-     Any behavior tag = COACHING → Coaching
-     Any behavior tag = REDFLAG  → RED FLAG
-*/
-function handle7days(within) {
-  state.within7 = within;
-  if (!within) {
-    showCoachingDirect();
-  } else {
+// Certification skips 7-day check
+function navAfterIntSource() {
+  if (state.auditType === 'Certification') {
+    state.within7 = null;
+    document.getElementById('back-category').onclick = () => nav('v3-int-source', 3);
     nav('v5-category', 5);
+  } else {
+    nav('v4-7days', 4);
   }
 }
 
@@ -470,9 +500,25 @@ document.getElementById('back-7days').onclick = () => {
   nav(state.resource === 'Escalation' ? 'v3-esc-source' : 'v3-int-source', 3);
 };
 
+function handle7days(within) {
+  state.within7 = within;
+  if (!within) {
+    showCoachingDirect();
+  } else {
+    document.getElementById('back-category').onclick = () => nav('v4-7days', 4);
+    nav('v5-category', 5);
+  }
+}
+
 function deriveClassification(behaviorTag) {
   if (behaviorTag === C) return 'Coaching';
-  if (behaviorTag === R) return 'RED FLAG';
+  if (behaviorTag === F) return 'Fail to Convert';
+  if (behaviorTag === R) {
+    if (state.resource === 'Escalation' && state.reporter === 'Client reported')   return 'Restaurant Mistake';
+    if (state.resource === 'Escalation' && state.reporter === 'Customer reported') return 'External Mistake';
+    return 'Internal Mistake';
+  }
+  // MISTAKE tag
   if (state.resource === 'Escalation') {
     return state.reporter === 'Client reported' ? 'Restaurant Mistake' : 'External Mistake';
   }
@@ -486,6 +532,7 @@ function classificationBadge(cls) {
     'Internal Mistake':   'badge-internal',
     'Coaching':           'badge-coaching',
     'RED FLAG':           'badge-redflag',
+    'Fail to Convert':    'badge-ftconvert',
   };
   return `<span class="outcome-badge ${map[cls] || 'badge-internal'}">${cls}</span>`;
 }
@@ -495,7 +542,9 @@ function renderCategories() {
   c.innerHTML = '';
   Object.keys(GRID).forEach(cat => {
     const btn = document.createElement('button');
-    btn.className = 'cat-btn';
+    btn.className = 'cat-btn' +
+      (cat === 'Red Flag'       ? ' cat-redflag'   : '') +
+      (cat === 'Fail to Convert'? ' cat-ftconvert'  : '');
     btn.textContent = cat;
     btn.onclick = () => showBehaviors(cat);
     c.appendChild(btn);
@@ -525,7 +574,8 @@ function showBehaviorResult(cat, item) {
   if (state.reporter)  chips.push(state.reporter);
   if (state.auditType) chips.push(state.auditType);
   if (state.source)    chips.push(state.source);
-  chips.push(state.within7 ? 'Within 7 days' : 'Beyond 7 days', cat, item.b);
+  if (state.within7 !== null) chips.push(state.within7 ? 'Within 7 days' : 'Beyond 7 days');
+  chips.push(cat, item.b);
   setChips(chips);
   document.getElementById('result-back').onclick = () => nav('v6-behaviors', 6);
   renderResult(state.classification, item.t, cat, item.b);
@@ -534,9 +584,7 @@ function showBehaviorResult(cat, item) {
 
 function showCoachingDirect() {
   state.classification = 'Coaching';
-  state.mistakeType = '—';
-  state.category = '—';
-  state.behavior = '—';
+  state.mistakeType = '—'; state.category = '—'; state.behavior = '—';
   const chips = [state.resource];
   if (state.reporter)  chips.push(state.reporter);
   if (state.auditType) chips.push(state.auditType);
@@ -549,8 +597,8 @@ function showCoachingDirect() {
 }
 
 function renderResult(classification, mistakeType, category, behavior) {
-  const mtClass  = MTYPE_CLASS[mistakeType] || 'mtype-na';
-  const mtLabel  = mistakeType || '—';
+  const mtClass = MTYPE_CLASS[mistakeType] || 'mtype-na';
+  const mtLabel = mistakeType || '—';
   const e = s => (s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/'/g,"\\'");
   const res = state.resource;
 
@@ -616,17 +664,13 @@ function copyLog(resource, mistakeType, category, behavior) {
 }
 
 function setChips(crumbs) {
-  document.getElementById('path-chips').innerHTML = crumbs.filter(Boolean).map((c, i, a) =>
-    i < a.length - 1
-      ? `<span class="chip">${c}</span><span class="chip-sep">›</span>`
-      : `<span class="chip">${c}</span>`
+  document.getElementById('path-chips').innerHTML = crumbs.filter(Boolean).map((c,i,a) =>
+    i < a.length-1 ? `<span class="chip">${c}</span><span class="chip-sep">›</span>` : `<span class="chip">${c}</span>`
   ).join('');
 }
 
 function resetAll() {
   Object.assign(state, { resource:'', reporter:'', auditType:'', source:'', within7:null, category:'', behavior:'', mistakeType:'', classification:'' });
-  document.getElementById('cat-btns').innerHTML = '';
-  document.getElementById('beh-list').innerHTML = '';
   nav('v1', 1);
 }
 
