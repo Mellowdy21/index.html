@@ -6,149 +6,348 @@
 <title>Tarro — Mistake Classification Tree</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   :root {
-    --bg: #ffffff; --bg2: #f5f5f4; --bg3: #eeece8;
-    --text: #1a1a18; --text2: #5a5a56; --text3: #9a9a94;
-    --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
-    --radius-md: 8px; --radius-lg: 12px;
-    --blue-bg: #e6f1fb; --blue-text: #185fa5; --blue-bd: #378add;
-    --green-bg: #eaf3de; --green-text: #3b6d11; --green-bd: #639922;
-    --amber-bg: #faeeda; --amber-text: #854f0b; --amber-bd: #ba7517;
-    --red-bg: #fcebeb; --red-text: #a32d2d; --red-bd: #e24b4a;
-    --info-bg: #e6f1fb; --info-text: #185fa5;
-    --warn-bg: #faeeda; --warn-text: #854f0b;
-    --danger-bg: #fcebeb; --danger-text: #a32d2d;
-    --success-bg: #eaf3de; --success-text: #3b6d11;
-    --purple-bg: #f0ebfb; --purple-text: #5b21b6;
-    --pink-bg: #fce8f3; --pink-text: #9d174d;
+    --bg:           #FAF7F2;
+    --card:         #FFFFFF;
+    --border:       #E8E0D5;
+    --border2:      #D1C7BC;
+    --text:         #2D2640;
+    --text2:        #5A5170;
+    --text3:        #9B94AB;
+    --purple:       #6B21D6;
+    --purple-light: #EDE9FB;
+    --purple-mid:   #C4B5FD;
+    --green:        #10B981;
+    --green-light:  #D1FAE5;
+    --amber:        #F59E0B;
+    --amber-light:  #FEF3C7;
+    --red:          #EF4444;
+    --red-light:    #FEE2E2;
+    --blue:         #3B82F6;
+    --blue-light:   #DBEAFE;
+    --pink:         #EC4899;
+    --pink-light:   #FCE7F3;
+    --radius:       16px;
+    --radius-sm:    10px;
+    --shadow:       0 2px 16px rgba(107,33,214,0.07);
+    --shadow-lg:    0 4px 32px rgba(107,33,214,0.12);
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #333330;
-      --text: #e8e6de; --text2: #a0a09a; --text3: #686862;
-      --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
-      --blue-bg: #0c2e4a; --blue-text: #85b7eb; --blue-bd: #185fa5;
-      --green-bg: #172504; --green-text: #97c459; --green-bd: #3b6d11;
-      --amber-bg: #2a1a04; --amber-text: #ef9f27; --amber-bd: #854f0b;
-      --red-bg: #2a0d0d; --red-text: #f09595; --red-bd: #a32d2d;
-      --info-bg: #0c2e4a; --info-text: #85b7eb;
-      --warn-bg: #2a1a04; --warn-text: #ef9f27;
-      --danger-bg: #2a0d0d; --danger-text: #f09595;
-      --success-bg: #172504; --success-text: #97c459;
-      --purple-bg: #1e1240; --purple-text: #a78bfa;
-      --pink-bg: #2d0a1e; --pink-text: #f9a8d4;
-    }
+
+  body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 48px;
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 24px 16px; }
-  header { max-width: 700px; margin: 0 auto 24px; display: flex; align-items: center; gap: 12px; }
-  .logo { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--red-bg); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 0.5px solid var(--red-bd); }
-  header h1 { font-size: 16px; font-weight: 600; }
-  header p { font-size: 12px; color: var(--text3); margin-top: 1px; }
-  #app { max-width: 700px; margin: 0 auto; background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 24px; }
 
-  .progress { display: flex; align-items: center; margin-bottom: 24px; }
-  .prog-step { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
-  .prog-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; border: 0.5px solid var(--border2); color: var(--text3); background: var(--bg2); transition: all 0.2s; }
-  .prog-dot.active { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue-bd); }
-  .prog-dot.done { background: var(--green-bg); color: var(--green-text); border-color: var(--green-bd); }
-  .prog-label { font-size: 9px; color: var(--text3); text-align: center; max-width: 52px; line-height: 1.2; }
-  .prog-line { flex: 1; height: 0.5px; background: var(--border); margin-bottom: 16px; min-width: 4px; }
+  /* ── HEADER ── */
+  .site-header {
+    text-align: center;
+    padding: 36px 24px 28px;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .tarro-logo {
+    font-family: Verdana, sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--purple);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .tarro-logo .dot { color: var(--green); font-size: 56px; line-height: 0.8; }
+  .site-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-top: 6px;
+  }
 
+  /* ── LAYOUT ── */
+  #app {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    margin-bottom: 32px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .prog-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+  .prog-dot {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    border: 2px solid var(--border2);
+    color: var(--text3); background: var(--card);
+    transition: all 0.2s;
+  }
+  .prog-dot.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .prog-dot.done   { background: var(--green);  color: #fff; border-color: var(--green);  }
+  .prog-label { font-size: 10px; font-weight: 700; color: var(--text3); text-align: center; max-width: 58px; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em; }
+  .prog-line { flex: 1; height: 2px; background: var(--border); margin-bottom: 20px; min-width: 8px; }
+
+  /* ── VIEWS ── */
   .view { display: none; }
   .view.active { display: block; }
-  .back-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 4px; padding: 0 0 14px; transition: color 0.15s; font-family: inherit; }
-  .back-btn:hover { color: var(--text); }
 
-  .q-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
-  .q-text { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.5; }
-  .q-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; line-height: 1.6; }
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .opt-btn { padding: 10px 18px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; line-height: 1.4; }
-  .opt-btn:hover { background: var(--bg3); }
+  .back-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: Verdana, sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--text3);
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 0 18px;
+    transition: color 0.15s;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .back-btn:hover { color: var(--purple); }
 
-  .choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
-  .choice-btn { padding: 14px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; text-align: center; font-family: inherit; }
-  .choice-btn:hover { background: var(--bg3); }
+  /* ── CARDS ── */
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    padding: 28px 28px 32px;
+    box-shadow: var(--shadow);
+  }
+  .q-label {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text3); margin-bottom: 10px;
+  }
+  .q-text {
+    font-size: 18px; font-weight: 700;
+    color: var(--text); margin-bottom: 20px; line-height: 1.4;
+  }
+  .q-sub {
+    font-size: 13px; color: var(--text2);
+    margin-bottom: 20px; line-height: 1.7;
+    background: var(--purple-light);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    border-left: 4px solid var(--purple);
+  }
 
-  .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
-  .cat-btn { padding: 11px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
-  .cat-btn:hover { background: var(--bg3); }
-  .cat-btn.cat-redflag    { border-color: var(--danger-bg);  background: var(--danger-bg);  color: var(--danger-text);  }
-  .cat-btn.cat-redflag:hover { opacity: 0.85; }
-  .cat-btn.cat-ftconvert  { border-color: var(--purple-bg);  background: var(--purple-bg);  color: var(--purple-text);  }
-  .cat-btn.cat-ftconvert:hover { opacity: 0.85; }
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
 
-  .behavior-list { display: flex; flex-direction: column; gap: 6px; }
-  .beh-btn { padding: 11px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; justify-content: space-between; gap: 12px; line-height: 1.45; font-family: inherit; }
-  .beh-btn:hover { background: var(--bg2); border-color: var(--border2); }
-  .beh-tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-md); white-space: nowrap; flex-shrink: 0; letter-spacing: 0.03em; }
-  .tag-mistake    { background: var(--warn-bg);    color: var(--warn-text);   }
-  .tag-coaching   { background: var(--info-bg);    color: var(--info-text);   }
-  .tag-redflag    { background: var(--danger-bg);  color: var(--danger-text); }
-  .tag-ftconvert  { background: var(--purple-bg);  color: var(--purple-text); }
+  .opt-btn {
+    padding: 14px 24px;
+    border-radius: 50px;
+    border: 2px solid var(--border2);
+    background: var(--card);
+    color: var(--text);
+    font-family: Verdana, sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; line-height: 1.3;
+  }
+  .opt-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
 
-  .badge-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
-  .outcome-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; }
-  .badge-restaurant  { background: var(--danger-bg);  color: var(--danger-text);  }
-  .badge-coaching    { background: var(--info-bg);    color: var(--info-text);    }
-  .badge-external    { background: var(--success-bg); color: var(--success-text); }
-  .badge-internal    { background: var(--warn-bg);    color: var(--warn-text);    }
-  .badge-redflag     { background: var(--danger-bg);  color: var(--danger-text);  }
-  .badge-ftconvert   { background: var(--purple-bg);  color: var(--purple-text);  }
+  .choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .choice-btn {
+    padding: 16px 14px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: Verdana, sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; text-align: center; line-height: 1.4;
+  }
+  .choice-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
 
-  .mtype-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; }
-  .mtype-mistake   { background: var(--warn-bg);    color: var(--warn-text);   }
-  .mtype-coaching  { background: var(--info-bg);    color: var(--info-text);   }
-  .mtype-redflag   { background: var(--danger-bg);  color: var(--danger-text); }
-  .mtype-ftconvert { background: var(--purple-bg);  color: var(--purple-text); }
-  .mtype-na        { background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border2); }
-  .inline-mtype { display: inline-flex; padding: 1px 8px; border-radius: var(--radius-md); font-size: 11px; font-weight: 600; margin-left: 4px; }
+  /* ── CATEGORY GRID ── */
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .cat-btn {
+    padding: 16px 12px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: Verdana, sans-serif;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; text-align: center; transition: all 0.15s; line-height: 1.4;
+  }
+  .cat-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
+  .cat-btn.cat-redflag   { border-color: var(--red);  color: var(--red);  background: var(--red-light);  }
+  .cat-btn.cat-redflag:hover { opacity: 0.8; }
+  .cat-btn.cat-ftconvert { border-color: var(--pink); color: var(--pink); background: var(--pink-light); }
+  .cat-btn.cat-ftconvert:hover { opacity: 0.8; }
 
-  .outcome-title { font-size: 15px; font-weight: 600; margin: 8px 0 6px; line-height: 1.5; }
-  .divider { height: 0.5px; background: var(--border); margin: 14px 0; }
-  .field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 6px; display: block; }
+  /* ── BEHAVIOR LIST ── */
+  .behavior-list { display: flex; flex-direction: column; gap: 8px; }
+  .beh-btn {
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: Verdana, sans-serif;
+    font-size: 13px; cursor: pointer; text-align: left;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; line-height: 1.5;
+  }
+  .beh-btn:hover { border-color: var(--purple); background: var(--purple-light); }
+  .beh-tag {
+    font-size: 10px; font-weight: 700; padding: 4px 10px;
+    border-radius: 50px; white-space: nowrap; flex-shrink: 0;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .tag-mistake    { background: var(--amber-light); color: #92400E; }
+  .tag-coaching   { background: var(--blue-light);  color: #1E40AF; }
+  .tag-redflag    { background: var(--red-light);   color: #991B1B; }
+  .tag-ftconvert  { background: var(--pink-light);  color: #9D174D; }
 
-  .log-entry-box { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; }
-  .log-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; }
-  .log-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); min-width: 110px; flex-shrink: 0; padding-top: 2px; }
-  .log-val { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.5; }
+  /* ── RESULT ── */
+  .result-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+  }
+  .badge-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+  .outcome-badge {
+    display: inline-flex; align-items: center; padding: 6px 16px;
+    border-radius: 50px; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .badge-restaurant { background: var(--red-light);    color: #991B1B; }
+  .badge-coaching   { background: var(--blue-light);   color: #1E40AF; }
+  .badge-external   { background: var(--green-light);  color: #065F46; }
+  .badge-internal   { background: var(--amber-light);  color: #92400E; }
+  .badge-redflag    { background: var(--red-light);    color: #991B1B; }
+  .badge-ftconvert  { background: var(--pink-light);   color: #9D174D; }
 
-  .details-block { margin-bottom: 10px; }
-  .details-textarea { width: 100%; min-height: 90px; padding: 12px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-family: inherit; font-size: 13px; line-height: 1.6; resize: vertical; transition: border-color 0.15s; outline: none; }
+  .mtype-pill {
+    display: inline-flex; align-items: center; padding: 6px 16px;
+    border-radius: 50px; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .mtype-mistake   { background: var(--amber-light); color: #92400E; }
+  .mtype-coaching  { background: var(--blue-light);  color: #1E40AF; }
+  .mtype-redflag   { background: var(--red-light);   color: #991B1B; }
+  .mtype-ftconvert { background: var(--pink-light);  color: #9D174D; }
+  .mtype-na        { background: var(--border);      color: var(--text3); }
+  .inline-mtype {
+    display: inline-flex; padding: 2px 10px;
+    border-radius: 50px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-left: 6px;
+  }
+
+  .outcome-title { font-size: 20px; font-weight: 700; margin: 12px 0 8px; color: var(--purple); line-height: 1.4; }
+  .divider { height: 2px; background: var(--border); margin: 20px 0; border-radius: 2px; }
+  .field-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text3); margin-bottom: 8px; display: block;
+  }
+
+  /* ── LOG ENTRY BOX ── */
+  .log-entry-box {
+    background: var(--purple-light);
+    border: 2px solid var(--purple-mid);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px; margin-bottom: 16px;
+  }
+  .log-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .log-row:last-child { margin-bottom: 0; }
+  .log-key {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--purple); min-width: 120px; flex-shrink: 0;
+  }
+  .log-val { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.5; }
+
+  /* ── DETAILS TEXTAREA ── */
+  .details-block { margin-bottom: 14px; }
+  .details-textarea {
+    width: 100%; min-height: 100px; padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border2);
+    background: var(--card); color: var(--text);
+    font-family: Verdana, sans-serif; font-size: 14px; line-height: 1.6;
+    resize: vertical; transition: border-color 0.15s; outline: none;
+  }
   .details-textarea::placeholder { color: var(--text3); }
-  .details-textarea:focus { border-color: var(--blue-bd); }
+  .details-textarea:focus { border-color: var(--purple); }
 
-  .preview-box { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; display: none; }
-  .preview-text { font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+  /* ── PREVIEW BOX ── */
+  .preview-box {
+    background: var(--bg);
+    border: 2px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px; margin-bottom: 14px; display: none;
+  }
+  .preview-text { font-size: 13px; color: var(--text); line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
 
-  .copy-btn { width: 100%; padding: 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 7px; font-family: inherit; margin-bottom: 8px; }
-  .copy-btn:hover { background: var(--bg2); }
-  .copy-btn.copied { background: var(--green-bg); color: var(--green-text); border-color: var(--green-bd); }
+  /* ── COPY & RESET BUTTONS ── */
+  .copy-btn {
+    width: 100%; padding: 16px;
+    border-radius: 50px;
+    border: 2px solid var(--purple);
+    background: var(--purple);
+    color: #fff;
+    font-family: Verdana, sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .copy-btn:hover { background: #5017B8; border-color: #5017B8; }
+  .copy-btn.copied { background: var(--green); border-color: var(--green); }
 
-  .path-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
-  .chip { font-size: 11px; padding: 3px 8px; border-radius: var(--radius-md); background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); }
-  .chip-sep { font-size: 11px; color: var(--text3); }
+  .reset-btn {
+    width: 100%; padding: 14px;
+    border-radius: 50px;
+    border: 2px solid var(--border2);
+    background: var(--card);
+    color: var(--text2);
+    font-family: Verdana, sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; text-align: center;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .reset-btn:hover { border-color: var(--purple); color: var(--purple); }
 
-  .reset-btn { font-size: 12px; color: var(--text2); cursor: pointer; background: none; border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 7px 14px; transition: background 0.15s; width: 100%; text-align: center; font-family: inherit; }
-  .reset-btn:hover { background: var(--bg2); }
+  /* ── PATH CHIPS ── */
+  .path-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .chip {
+    font-size: 11px; font-weight: 700; padding: 4px 12px;
+    border-radius: 50px; background: var(--purple-light);
+    color: var(--purple); border: 1.5px solid var(--purple-mid);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .chip-sep { font-size: 13px; color: var(--text3); font-weight: 700; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">🍜</div>
-  <div>
-    <h1>Mistake Classification Tree</h1>
-    <p>Tarro Quality Assurance — Internal Use Only</p>
+<!-- HEADER -->
+<div class="site-header">
+  <div class="tarro-logo">
+    <span>tarro</span><span class="dot">+</span>
   </div>
-</header>
+  <div class="site-title">Mistake Classification Tree</div>
+</div>
 
 <div id="app">
-  <div class="progress" id="progress-bar"></div>
+  <div class="progress-wrap" id="progress-bar"></div>
 
   <!-- Step 1: Resource -->
   <div class="view active" id="v1">
     <div class="q-card">
+      <div class="q-label">Step 1</div>
       <div class="q-text">Select the resource</div>
       <div class="choice-grid">
         <button class="choice-btn" onclick="selectResource('Escalation')">Escalation</button>
@@ -161,6 +360,7 @@
   <div class="view" id="v2-escalation">
     <button class="back-btn" onclick="nav('v1',1)">← Back</button>
     <div class="q-card">
+      <div class="q-label">Step 2</div>
       <div class="q-text">How was this identified?</div>
       <div class="btn-row">
         <button class="opt-btn" onclick="selectReporter('Client reported'); nav('v3-esc-source',3)">Client reported</button>
@@ -173,6 +373,7 @@
   <div class="view" id="v2-internal">
     <button class="back-btn" onclick="nav('v1',1)">← Back</button>
     <div class="q-card">
+      <div class="q-label">Step 2</div>
       <div class="q-text">How was this identified?</div>
       <div class="choice-grid">
         <button class="choice-btn" onclick="selectAuditType('FTC Audit'); nav('v3-int-source',3)">FTC Audit</button>
@@ -187,6 +388,7 @@
   <div class="view" id="v3-esc-source">
     <button class="back-btn" onclick="nav('v2-escalation',2)">← Back</button>
     <div class="q-card">
+      <div class="q-label">Step 3</div>
       <div class="q-text">Select the source</div>
       <div class="btn-row">
         <button class="opt-btn" onclick="selectSource('WIRA/CMA'); nav('v4-7days',4)">WIRA / CMA</button>
@@ -199,6 +401,7 @@
   <div class="view" id="v3-int-source">
     <button class="back-btn" onclick="nav('v2-internal',2)">← Back</button>
     <div class="q-card">
+      <div class="q-label">Step 3</div>
       <div class="q-text">Select the source</div>
       <div class="choice-grid">
         <button class="choice-btn" onclick="selectSource('Slack - Braintrust'); navAfterIntSource()">Slack — Braintrust</button>
@@ -216,6 +419,7 @@
   <div class="view" id="v4-7days">
     <button class="back-btn" id="back-7days">← Back</button>
     <div class="q-card">
+      <div class="q-label">Step 4</div>
       <div class="q-text">Is the call still within 7 days from the time it was handled?</div>
       <div class="btn-row">
         <button class="opt-btn" onclick="handle7days(true)">Yes — within 7 days</button>
@@ -228,6 +432,7 @@
   <div class="view" id="v5-category">
     <button class="back-btn" id="back-category">← Back</button>
     <div class="q-card">
+      <div class="q-label">Step 5</div>
       <div class="q-text">Select the error category</div>
       <div class="cat-grid" id="cat-btns"></div>
     </div>
@@ -237,6 +442,7 @@
   <div class="view" id="v6-behaviors">
     <button class="back-btn" onclick="nav('v5-category',5)">← Back</button>
     <div class="q-card">
+      <div class="q-label">Step 6</div>
       <div class="q-text" id="beh-title">Select the specific behavior</div>
       <div class="behavior-list" id="beh-list"></div>
     </div>
@@ -246,7 +452,7 @@
   <div class="view" id="v-result">
     <button class="back-btn" id="result-back">← Back</button>
     <div class="path-chips" id="path-chips"></div>
-    <div id="result-content"></div>
+    <div class="result-card" id="result-content"></div>
   </div>
 </div>
 
@@ -266,8 +472,8 @@ const MTYPE_CLASS = {
   [M]: 'mtype-mistake', [C]: 'mtype-coaching', [R]: 'mtype-redflag', [F]: 'mtype-ftconvert', '—': 'mtype-na'
 };
 
-const COPY_ICON  = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>`;
-const CHECK_ICON = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
+const COPY_ICON  = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
+const CHECK_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
 
 const GRID = {
   'Dish': [
@@ -454,19 +660,13 @@ function buildProgress(current) {
   bar.innerHTML = '';
   labels.forEach((lbl, i) => {
     const n = i + 1;
-    const step = document.createElement('div');
-    step.className = 'prog-step';
+    const step = document.createElement('div'); step.className = 'prog-step';
     const dot = document.createElement('div');
     dot.className = 'prog-dot' + (n < current ? ' done' : n === current ? ' active' : '');
     dot.textContent = n < current ? '✓' : n;
-    const label = document.createElement('div');
-    label.className = 'prog-label';
-    label.textContent = lbl;
-    step.appendChild(dot); step.appendChild(label);
-    bar.appendChild(step);
-    if (i < labels.length - 1) {
-      const line = document.createElement('div'); line.className = 'prog-line'; bar.appendChild(line);
-    }
+    const label = document.createElement('div'); label.className = 'prog-label'; label.textContent = lbl;
+    step.appendChild(dot); step.appendChild(label); bar.appendChild(step);
+    if (i < labels.length - 1) { const line = document.createElement('div'); line.className = 'prog-line'; bar.appendChild(line); }
   });
 }
 
@@ -485,7 +685,6 @@ function selectReporter(r)  { state.reporter = r; }
 function selectAuditType(t) { state.auditType = t; }
 function selectSource(s)    { state.source = s; }
 
-// Certification skips 7-day check
 function navAfterIntSource() {
   if (state.auditType === 'Certification') {
     state.within7 = null;
@@ -502,9 +701,8 @@ document.getElementById('back-7days').onclick = () => {
 
 function handle7days(within) {
   state.within7 = within;
-  if (!within) {
-    showCoachingDirect();
-  } else {
+  if (!within) { showCoachingDirect(); }
+  else {
     document.getElementById('back-category').onclick = () => nav('v4-7days', 4);
     nav('v5-category', 5);
   }
@@ -518,33 +716,20 @@ function deriveClassification(behaviorTag) {
     if (state.resource === 'Escalation' && state.reporter === 'Customer reported') return 'External Mistake';
     return 'Internal Mistake';
   }
-  // MISTAKE tag
-  if (state.resource === 'Escalation') {
-    return state.reporter === 'Client reported' ? 'Restaurant Mistake' : 'External Mistake';
-  }
+  if (state.resource === 'Escalation') return state.reporter === 'Client reported' ? 'Restaurant Mistake' : 'External Mistake';
   return 'Internal Mistake';
 }
 
 function classificationBadge(cls) {
-  const map = {
-    'Restaurant Mistake': 'badge-restaurant',
-    'External Mistake':   'badge-external',
-    'Internal Mistake':   'badge-internal',
-    'Coaching':           'badge-coaching',
-    'RED FLAG':           'badge-redflag',
-    'Fail to Convert':    'badge-ftconvert',
-  };
-  return `<span class="outcome-badge ${map[cls] || 'badge-internal'}">${cls}</span>`;
+  const map = { 'Restaurant Mistake':'badge-restaurant', 'External Mistake':'badge-external', 'Internal Mistake':'badge-internal', 'Coaching':'badge-coaching', 'RED FLAG':'badge-redflag', 'Fail to Convert':'badge-ftconvert' };
+  return `<span class="outcome-badge ${map[cls]||'badge-internal'}">${cls}</span>`;
 }
 
 function renderCategories() {
-  const c = document.getElementById('cat-btns');
-  c.innerHTML = '';
+  const c = document.getElementById('cat-btns'); c.innerHTML = '';
   Object.keys(GRID).forEach(cat => {
     const btn = document.createElement('button');
-    btn.className = 'cat-btn' +
-      (cat === 'Red Flag'       ? ' cat-redflag'   : '') +
-      (cat === 'Fail to Convert'? ' cat-ftconvert'  : '');
+    btn.className = 'cat-btn' + (cat==='Red Flag'?' cat-redflag':cat==='Fail to Convert'?' cat-ftconvert':'');
     btn.textContent = cat;
     btn.onclick = () => showBehaviors(cat);
     c.appendChild(btn);
@@ -554,11 +739,9 @@ function renderCategories() {
 function showBehaviors(cat) {
   state.category = cat;
   document.getElementById('beh-title').textContent = cat + ' — select the specific behavior';
-  const list = document.getElementById('beh-list');
-  list.innerHTML = '';
+  const list = document.getElementById('beh-list'); list.innerHTML = '';
   GRID[cat].forEach(item => {
-    const btn = document.createElement('button');
-    btn.className = 'beh-btn';
+    const btn = document.createElement('button'); btn.className = 'beh-btn';
     btn.innerHTML = `<span>${item.b}</span><span class="beh-tag ${TAG_CLASS[item.t]}">${item.t}</span>`;
     btn.onclick = () => showBehaviorResult(cat, item);
     list.appendChild(btn);
@@ -567,8 +750,7 @@ function showBehaviors(cat) {
 }
 
 function showBehaviorResult(cat, item) {
-  state.behavior = item.b;
-  state.mistakeType = item.t;
+  state.behavior = item.b; state.mistakeType = item.t;
   state.classification = deriveClassification(item.t);
   const chips = [state.resource];
   if (state.reporter)  chips.push(state.reporter);
@@ -583,8 +765,7 @@ function showBehaviorResult(cat, item) {
 }
 
 function showCoachingDirect() {
-  state.classification = 'Coaching';
-  state.mistakeType = '—'; state.category = '—'; state.behavior = '—';
+  state.classification = 'Coaching'; state.mistakeType = '—'; state.category = '—'; state.behavior = '—';
   const chips = [state.resource];
   if (state.reporter)  chips.push(state.reporter);
   if (state.auditType) chips.push(state.auditType);
@@ -601,7 +782,6 @@ function renderResult(classification, mistakeType, category, behavior) {
   const mtLabel = mistakeType || '—';
   const e = s => (s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/'/g,"\\'");
   const res = state.resource;
-
   document.getElementById('result-content').innerHTML = `
     <div class="badge-row">
       ${classificationBadge(classification)}
@@ -610,9 +790,9 @@ function renderResult(classification, mistakeType, category, behavior) {
     <div class="outcome-title">${classification}${category !== '—' ? ' — ' + category : ''}</div>
     <div class="divider"></div>
     <div class="log-entry-box">
-      <span class="field-label">QA log entry</span>
+      <span class="field-label">QA Log Entry</span>
       <div class="log-row"><span class="log-key">Resource</span><span class="log-val">${res}</span></div>
-      <div class="log-row"><span class="log-key">Mistake type</span><span class="log-val"><span class="inline-mtype ${mtClass}">${mtLabel}</span></span></div>
+      <div class="log-row"><span class="log-key">Mistake Type</span><span class="log-val"><span class="inline-mtype ${mtClass}">${mtLabel}</span></span></div>
       <div class="log-row"><span class="log-key">Category</span><span class="log-val">${category}</span></div>
       <div class="log-row"><span class="log-key">Behavior</span><span class="log-val">${behavior}</span></div>
     </div>
@@ -624,14 +804,13 @@ function renderResult(classification, mistakeType, category, behavior) {
       ></textarea>
     </div>
     <div class="preview-box" id="full-preview">
-      <span class="field-label">Full log preview</span>
+      <span class="field-label">Full Log Preview</span>
       <div class="preview-text" id="preview-text"></div>
     </div>
-    <button class="copy-btn" id="copy-btn"
-      onclick="copyLog('${e(res)}','${e(mtLabel)}','${e(category)}','${e(behavior)}')">
-      ${COPY_ICON} Copy log entry
+    <button class="copy-btn" id="copy-btn" onclick="copyLog('${e(res)}','${e(mtLabel)}','${e(category)}','${e(behavior)}')">
+      ${COPY_ICON} Copy Log Entry
     </button>
-    <button class="reset-btn" onclick="resetAll()">← Start over</button>
+    <button class="reset-btn" onclick="resetAll()">← Start Over</button>
   `;
 }
 
@@ -640,35 +819,26 @@ function buildLogText(resource, mistakeType, category, behavior, details) {
   if (details) t += `\n\nDetails / Recommendation:\n${details}`;
   return t;
 }
-
 function updatePreview(resource, mistakeType, category, behavior) {
   const details = document.getElementById('details-input').value.trim();
   const preview = document.getElementById('full-preview');
   const previewText = document.getElementById('preview-text');
-  if (details) {
-    previewText.textContent = buildLogText(resource, mistakeType, category, behavior, details);
-    preview.style.display = 'block';
-  } else {
-    preview.style.display = 'none';
-  }
+  if (details) { previewText.textContent = buildLogText(resource, mistakeType, category, behavior, details); preview.style.display = 'block'; }
+  else { preview.style.display = 'none'; }
 }
-
 function copyLog(resource, mistakeType, category, behavior) {
-  const details = (document.getElementById('details-input').value || '').trim();
+  const details = (document.getElementById('details-input').value||'').trim();
   navigator.clipboard.writeText(buildLogText(resource, mistakeType, category, behavior, details)).then(() => {
     const btn = document.getElementById('copy-btn');
-    btn.classList.add('copied');
-    btn.innerHTML = CHECK_ICON + ' Copied!';
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = COPY_ICON + ' Copy log entry'; }, 2000);
+    btn.classList.add('copied'); btn.innerHTML = CHECK_ICON + ' Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = COPY_ICON + ' Copy Log Entry'; }, 2000);
   });
 }
-
 function setChips(crumbs) {
   document.getElementById('path-chips').innerHTML = crumbs.filter(Boolean).map((c,i,a) =>
     i < a.length-1 ? `<span class="chip">${c}</span><span class="chip-sep">›</span>` : `<span class="chip">${c}</span>`
   ).join('');
 }
-
 function resetAll() {
   Object.assign(state, { resource:'', reporter:'', auditType:'', source:'', within7:null, category:'', behavior:'', mistakeType:'', classification:'' });
   nav('v1', 1);
